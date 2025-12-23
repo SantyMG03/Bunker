@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'login_screen.dart';
 
 void main() {
   runApp(const ElBunkerApp());
@@ -20,7 +21,7 @@ class ElBunkerApp extends StatelessWidget {
           primary: Colors.greenAccent, // Color de acento estilo terminal
         ),
       ),
-      home: const PantallaPrincipal(),
+      home: const LoginScreen(),
     );
   }
 }
