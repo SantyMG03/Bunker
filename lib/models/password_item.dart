@@ -21,9 +21,9 @@ class PasswordItem {
       'id': id,
       'title': title,
       'user_name': username,
-      'encrypted_pswd': encryptedPswd,
+      'encrypted_password': encryptedPswd,
       'notes': notes,
-      'createdAt': createdAt.toIso8601String(), // DateTime saved as a String
+      'created_at': createdAt.toIso8601String(), // DateTime saved as a String
     };
   }
 
@@ -33,9 +33,9 @@ class PasswordItem {
       id: map['id'] as int?,
       title: map['title'] as String,
       username: map['user_name'] as String,
-      encryptedPswd: map['encrypted_pswd'] as String,
+      encryptedPswd: map['encrypted_password'] as String,
       notes: map['notes'] as String? ?? '', // Default to empty string if null
-      createdAt: DateTime.parse(map['createdAt'] as String),
+      createdAt: DateTime.parse(map['created_at'] as String),
     );
   }
 
