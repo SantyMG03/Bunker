@@ -71,4 +71,40 @@ class _HomeScreenState extends State<HomeScreen> {
       )
     );
   }
+
+  /// Builds the list view of stored passwords
+  Widget _buildPasswordList() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(12),
+      itemCount: passwords.length,
+      itemBuilder: (context, index) {
+        final item = passwords[index];
+        return Card(
+          elevation: 3,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(12)),  
+          margin: const EdgeInsets.only(bottom: 12),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.blueGrey[100],
+              child: const Icon(Icons.vpn_key, color: Colors.blueGrey),
+            ),
+            title: Text(
+              item.title,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(item.username),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+              onPressed: () async {
+                if (item.id != null) {
+                  await DatabaseHelper.instance.delete(item.id!);
+                  await refreshPasswords(); // Refresh the list after deletion
+                }
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
