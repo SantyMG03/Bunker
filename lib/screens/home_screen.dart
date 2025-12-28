@@ -54,4 +54,21 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  /// Builds the UI for the empty state when no passwords are stored
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const[
+          Icon(Icons.lock_outline, size: 80, color: Colors.grey),
+          SizedBox(height: 16),
+          Text(
+            'The vault is empty',
+            style: TextStyle(fontSize: 18, color: Colors.grey),
+          ),
+        ],
+      )
+    );
+  }
 }
