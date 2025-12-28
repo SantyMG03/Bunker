@@ -18,4 +18,40 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     refreshPasswords();
   }
+
+  /// Refreshes the list of passwords from the database
+  Future<void> refreshPasswords() async {
+    setState(() => isLoading = true);
+    final data = await DatabaseHelper.instance.readAllPasswords();
+    setState(() {
+      passwords = data.map((item) => PasswordItem.fromMap(item)).toList();
+      isLoading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Bunker Vault'),
+        centerTitle: true,
+        backgroundColor: Colors.blueGrey[900],
+        foregroundColor: Colors.white,
+      ),
+      backgroundColor: Colors.blueGrey[50],
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : passwords.isEmpty
+              ? _buildEmptyState()
+              : _buildPasswordList(),
+
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.blueGrey[900],
+        child: const Icon(Icons.add, color: Colors.white),
+        onPressed: () {
+          // Navigate to add password screen (to be implemented)
+        },
+      ),
+    );
+  }
 }
