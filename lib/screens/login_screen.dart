@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'home_screen.dart'; 
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,10 +20,17 @@ class _LoginScreenState extends State<LoginScreen> {
       if(pswd.isEmpty){
         _errorMessage = "Password cannot be empty.";
       } else if (pswd == "1234") {
-        _errorMessage = null;
-        print("Login successful");
+        setState(() {
+          _errorMessage = null;
+        });
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login Successful!'))
+        ); 
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       } else {
         _errorMessage = "Incorrect password. Try again.";
@@ -33,7 +41,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.black, // Ya viene del tema oscuro en main.dart
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(30.0),
