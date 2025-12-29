@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bunker/services/database_helper.dart';
 import 'package:bunker/models/password_item.dart';
+import 'add_password_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -48,8 +49,16 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blueGrey[900],
         child: const Icon(Icons.add, color: Colors.white),
-        onPressed: () {
-          // Navigate to add password screen (to be implemented)
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddPasswordScreen()),
+          );
+
+          if (result == true) {
+            // Refresh the list if a new password was added
+            refreshPasswords();
+          }
         },
       ),
     );
