@@ -117,10 +117,39 @@ class _HomeScreenState extends State<HomeScreen> {
             trailing: IconButton(
               icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
               onPressed: () async {
-                if (item.id != null) {
-                  await DatabaseHelper.instance.delete(item.id!);
-                  await refreshPasswords(); // Refresh the list after deletion
-                }
+                showDialog(
+                  context: context, 
+                  builder: (BuildContext ctx) {
+                    return AlertDialog(
+                      title: const Text('Are you sure?'),
+                      content: const Text('Do you want to delete this secret? This action cannot be undone.'),
+                      actions: [
+                        TextButton(
+                          onPressed: (){
+                            Navigator.of(ctx).pop();
+                          },
+                          child: const Text('Cancel', style: TextStyle(color: Colors.white)),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            Navigator.of(ctx).pop();
+
+                            if (item.id != null) {
+                              await DatabaseHelper.instance.delete(item.id!);
+                              refreshPasswords();
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Secret deleted!')),
+                                );
+                              }
+                            }
+                          }, 
+                          child: const Text('Delete', style: TextStyle(color: Colors.redAccent))
+                        )
+                      ],
+                    );
+                  }
+                );
               },
             ),
           ),
