@@ -102,6 +102,18 @@ class _HomeScreenState extends State<HomeScreen> {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Text(item.username),
+            onTap: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddPasswordScreen(itemToEdit: item),
+                ),
+              );
+              if (result == true) {
+                // Refresh the list if a password was edited
+                refreshPasswords();
+              }
+            },
             trailing: IconButton(
               icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
               onPressed: () async {
