@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bunker/services/database_helper.dart';
 import 'package:bunker/models/password_item.dart';
+import '../widgets/password_card.dart';
 import 'add_password_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -88,71 +89,55 @@ class _HomeScreenState extends State<HomeScreen> {
       itemCount: passwords.length,
       itemBuilder: (context, index) {
         final item = passwords[index];
-        return Card(
-          elevation: 3,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(12)),  
-          margin: const EdgeInsets.only(bottom: 12),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Colors.blueGrey[100],
-              child: const Icon(Icons.vpn_key, color: Colors.blueGrey),
-            ),
-            title: Text(
-              item.title,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text(item.username),
-            onTap: () async {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AddPasswordScreen(itemToEdit: item),
-                ),
-              );
-              if (result == true) {
-                // Refresh the list if a password was edited
-                refreshPasswords();
-              }
-            },
-            trailing: IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-              onPressed: () async {
-                showDialog(
-                  context: context, 
-                  builder: (BuildContext ctx) {
-                    return AlertDialog(
-                      title: const Text('Are you sure?'),
-                      content: const Text('Do you want to delete this secret? This action cannot be undone.'),
-                      actions: [
-                        TextButton(
-                          onPressed: (){
-                            Navigator.of(ctx).pop();
-                          },
-                          child: const Text('Cancel', style: TextStyle(color: Colors.white)),
-                        ),
-                        TextButton(
-                          onPressed: () async {
-                            Navigator.of(ctx).pop();
-
-                            if (item.id != null) {
-                              await DatabaseHelper.instance.delete(item.id!);
-                              refreshPasswords();
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Secret deleted!')),
-                                );
-                              }
-                            }
-                          }, 
-                          child: const Text('Delete', style: TextStyle(color: Colors.redAccent))
-                        )
-                      ],
-                    );
-                  }
+        
+        // Use the PasswordCard widget
+        return PasswordCard(
+          item: item,
+          
+          // What to do on tap (EDIT)
+          onTap: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddPasswordScreen(itemToEdit: item),
+              ),
+            );
+            if (result == true) refreshPasswords();
+          },
+          
+          // What to do on delete (SHOW DIALOG)
+          onDelete: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext ctx) {
+                return AlertDialog(
+                  title: const Text('Delete secret?'),
+                  content: Text('You are about to delete the password for "${item.title}". This action cannot be undone.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(ctx).pop(),
+                      child: const Text('CANCEL', style: TextStyle(color: Colors.white)),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        Navigator.of(ctx).pop(); // Close alert
+                        if (item.id != null) {
+                          await DatabaseHelper.instance.delete(item.id!);
+                          refreshPasswords(); // Refresh list
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Deleted successfully')),
+                            );
+                          }
+                        }
+                      },
+                      child: const Text('DELETE', style: TextStyle(color: Colors.redAccent)),
+                    ),
+                  ],
                 );
               },
-            ),
-          ),
+            );
+          },
         );
       },
     );
