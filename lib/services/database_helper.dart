@@ -62,6 +62,18 @@ class DatabaseHelper {
     return await db.query('passwords', orderBy: 'created_at DESC');
   }
 
+  /// Updates an existing secret in the database
+  Future<int> update(Map<String, dynamic> row) async {
+    final db = await instance.database;
+    int id = row['id'];
+    return await db.update(
+      'passwords',
+      row,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   /// Deletes a secret by ID
   Future<int> delete(int id) async {
     final db = await instance.database;
