@@ -3,7 +3,10 @@ import '../services/database_helper.dart';
 import '../models/password_item.dart';
 
 class AddPasswordScreen extends StatefulWidget {
-  const AddPasswordScreen({super.key});
+  // Optional parameter to edit an existing password
+  final PasswordItem? itemToEdit;
+
+  const AddPasswordScreen({super.key, this.itemToEdit});
 
   @override
   State<AddPasswordScreen> createState() => _AddPasswordScreenState();
@@ -12,10 +15,20 @@ class AddPasswordScreen extends StatefulWidget {
 class _AddPasswordScreenState extends State<AddPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  final _titleController = TextEditingController();
-  final _userController = TextEditingController();
-  final _passController = TextEditingController();
-  final _notesController = TextEditingController();
+  late TextEditingController _titleController;
+  late TextEditingController _userController;
+  late TextEditingController _passController;
+  late TextEditingController _notesController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _titleController = TextEditingController(text: widget.itemToEdit?.title ?? '');
+    _userController = TextEditingController(text: widget.itemToEdit?.username ?? '');
+    _passController = TextEditingController(text: widget.itemToEdit?.encryptedPswd ?? '');
+    _notesController = TextEditingController(text: widget.itemToEdit?.notes ?? '');
+  }
 
   @override
   void dispose() {
@@ -30,20 +43,29 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
   Future<void> _savePassword() async {
     if (_formKey.currentState!.validate()) {
       final newItem = PasswordItem(
+        id: widget.itemToEdit?.id,
         title: _titleController.text,
         username: _userController.text,
         encryptedPswd: _passController.text, 
         notes: _notesController.text,
-        createdAt: DateTime.now(),
+        createdAt: widget.itemToEdit?.createdAt ?? DateTime.now(),
       );
 
-      await DatabaseHelper.instance.create(newItem.toMap());
+      // Decide whether to create a new entry or update an existing one
+      if (widget.itemToEdit != null) {
+        await DatabaseHelper.instance.update(newItem.toMap());
+      } else {
+        await DatabaseHelper.instance.create(newItem.toMap());
+      }
 
       if (mounted) {
         Navigator.pop(context, true); // Indicate that a new item was added
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Password saved successfully!')),
+          SnackBar(content: Text(widget.itemToEdit != null 
+            ? 'Password updated!' 
+            : 'Password saved!'),
+          ),
         );
       }
     }
@@ -51,28 +73,29 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Cambiamos el título de la pantalla según el modo
+    final isEditing = widget.itemToEdit != null;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('New Password'), centerTitle: true),
+      appBar: AppBar(
+        title: Text(isEditing ? 'Edit Secret' : 'New Secret'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
-              // Title Field
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(
-                  labelText: 'Sitio Web / Título',
+                  labelText: 'Website / Title',
                   prefixIcon: Icon(Icons.language),
                   border: OutlineInputBorder(),
-                  hintText: 'E.g. Netflix, Gmail, Bank...',
                 ),
                 validator: (value) => value!.isEmpty ? 'Title is required' : null,
               ),
               const SizedBox(height: 16),
-
-              // Username Field
               TextFormField(
                 controller: _userController,
                 decoration: const InputDecoration(
@@ -80,14 +103,11 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
                   prefixIcon: Icon(Icons.person_outline),
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) => value!.isEmpty ? 'Username is required' : null,
+                validator: (value) => value!.isEmpty ? 'User is required' : null,
               ),
               const SizedBox(height: 16),
-
-              // Password Field
               TextFormField(
                 controller: _passController,
-                obscureText: false, // Set to true if you want to hide the password while typing
                 decoration: const InputDecoration(
                   labelText: 'Password',
                   prefixIcon: Icon(Icons.vpn_key),
@@ -96,8 +116,6 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
                 validator: (value) => value!.isEmpty ? 'Password is required' : null,
               ),
               const SizedBox(height: 16),
-
-              // Notes Field
               TextFormField(
                 controller: _notesController,
                 decoration: const InputDecoration(
@@ -108,14 +126,12 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
                 maxLines: 3,
               ),
               const SizedBox(height: 30),
-
-              // Save Button
               SizedBox(
                 height: 50,
                 child: ElevatedButton.icon(
                   onPressed: _savePassword,
                   icon: const Icon(Icons.save),
-                  label: const Text('SAVE TO VAULT'),
+                  label: Text(isEditing ? 'UPDATE DATA' : 'SAVE TO VAULT'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.greenAccent,
                     foregroundColor: Colors.black,
