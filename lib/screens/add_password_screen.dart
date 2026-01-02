@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 import '../services/database_helper.dart';
 import '../models/password_item.dart';
 
@@ -38,6 +39,45 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
     _passController.dispose();
     _notesController.dispose();
     super.dispose();
+  }
+
+  void _generatePassword() {
+    const length = 16;
+    const letters = 'abcdefghijklmnopqrstuvwxyz';
+    const uppers = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const numbers = '0123456789';
+    const specials = '@#%^*&!_';
+
+    const allChars = letters + uppers + numbers + specials;
+    final random = Random();
+
+    // Ensure the password contains at least one character from each category
+    List<String> passwordChars =[
+      letters[random.nextInt(letters.length)],
+      uppers[random.nextInt(uppers.length)],
+      numbers[random.nextInt(numbers.length)],
+      specials[random.nextInt(specials.length)],
+    ];
+
+    // Fill the rest of the password length with random characters from all categories
+    for (int i = 4; i < length; i++) {
+      passwordChars.add(allChars[random.nextInt(allChars.length)]);
+    }
+
+    passwordChars.shuffle();
+
+    setState(() {
+      _passController.text = passwordChars.join();
+    });
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Password generated!'),
+        backgroundColor: Colors.greenAccent,
+        duration: Duration(seconds: 1),
+      ),
+    );
   }
 
   Future<void> _savePassword() async {
