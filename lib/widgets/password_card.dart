@@ -21,6 +21,20 @@ class PasswordCard extends StatefulWidget {
 class _PasswordCardState extends State<PasswordCard> {
   bool _isObscured = true; // By default, password is obscured
 
+  /// Auxiliary method to copy password to clipboard
+  void _copyToClipboard(BuildContext context, String text, String type) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$type copied to clipboard'),
+        backgroundColor: Colors.greenAccent,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
