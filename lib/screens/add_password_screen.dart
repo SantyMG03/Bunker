@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 import '../services/database_helper.dart';
 import '../models/password_item.dart';
 
@@ -40,6 +41,45 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
     super.dispose();
   }
 
+  void _generatePassword() {
+    const length = 16;
+    const letters = 'abcdefghijklmnopqrstuvwxyz';
+    const uppers = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const numbers = '0123456789';
+    const specials = '@#%^*&!_';
+
+    const allChars = letters + uppers + numbers + specials;
+    final random = Random();
+
+    // Ensure the password contains at least one character from each category
+    List<String> passwordChars =[
+      letters[random.nextInt(letters.length)],
+      uppers[random.nextInt(uppers.length)],
+      numbers[random.nextInt(numbers.length)],
+      specials[random.nextInt(specials.length)],
+    ];
+
+    // Fill the rest of the password length with random characters from all categories
+    for (int i = 4; i < length; i++) {
+      passwordChars.add(allChars[random.nextInt(allChars.length)]);
+    }
+
+    passwordChars.shuffle();
+
+    setState(() {
+      _passController.text = passwordChars.join();
+    });
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Password generated!'),
+        backgroundColor: Colors.greenAccent,
+        duration: Duration(seconds: 1),
+      ),
+    );
+  }
+
   Future<void> _savePassword() async {
     if (_formKey.currentState!.validate()) {
       final newItem = PasswordItem(
@@ -73,7 +113,6 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Cambiamos el título de la pantalla según el modo
     final isEditing = widget.itemToEdit != null;
 
     return Scaffold(
@@ -106,15 +145,32 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
                 validator: (value) => value!.isEmpty ? 'User is required' : null,
               ),
               const SizedBox(height: 16),
+              
+              // Password field with generate button
               TextFormField(
                 controller: _passController,
-                decoration: const InputDecoration(
+                obscureText: false, 
+                decoration: InputDecoration(
                   labelText: 'Password',
-                  prefixIcon: Icon(Icons.vpn_key),
-                  border: OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.vpn_key),
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.flash_on, color: Colors.greenAccent),
+                    tooltip: "Generate secure password",
+                    onPressed: _generatePassword,
+                  ),
                 ),
                 validator: (value) => value!.isEmpty ? 'Password is required' : null,
               ),
+              // Hint text for password generation
+              const Padding(
+                padding: EdgeInsets.only(top: 5, left: 10),
+                child: Text(
+                  "Press the lightning ⚡ to generate a secure password",
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ),
+
               const SizedBox(height: 16),
               TextFormField(
                 controller: _notesController,
