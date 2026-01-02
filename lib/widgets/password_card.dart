@@ -21,6 +21,20 @@ class PasswordCard extends StatefulWidget {
 class _PasswordCardState extends State<PasswordCard> {
   bool _isObscured = true; // By default, password is obscured
 
+  /// Auxiliary method to copy password to clipboard
+  void _copyToClipboard(BuildContext context, String text, String type) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$type copied to clipboard'),
+        backgroundColor: Colors.greenAccent,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -47,6 +61,7 @@ class _PasswordCardState extends State<PasswordCard> {
           children: [
             Text(widget.item.username, style: TextStyle(color: Colors.grey[400])),
             const SizedBox(height: 4),
+            // Password display with lock icon
             Row(
               children: [
                 Icon(
@@ -56,6 +71,7 @@ class _PasswordCardState extends State<PasswordCard> {
                 ),
                 const SizedBox(width: 6),
 
+                // Password text
                 Expanded(
                   child: Text(
                     _isObscured ? '••••••••••••' : widget.item.encryptedPswd,
@@ -66,11 +82,26 @@ class _PasswordCardState extends State<PasswordCard> {
                     ),
                     overflow: TextOverflow.ellipsis,
                   )
-                )
+                ),
+
+                // Copy password button
+                IconButton(
+                  icon: const Icon(
+                    Icons.copy_all, 
+                    size: 20, 
+                    color: Colors.greenAccent
+                  ),
+                  tooltip: "Copy Password",
+                  onPressed: () {
+                    _copyToClipboard(context, widget.item.encryptedPswd, "Password");
+                  },
+                ),
               ],
             )
           ],
         ),
+
+        // Trailing icons: Toggle visibility and delete
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
