@@ -113,7 +113,6 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Cambiamos el título de la pantalla según el modo
     final isEditing = widget.itemToEdit != null;
 
     return Scaffold(
@@ -146,15 +145,32 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
                 validator: (value) => value!.isEmpty ? 'User is required' : null,
               ),
               const SizedBox(height: 16),
+              
+              // Password field with generate button
               TextFormField(
                 controller: _passController,
-                decoration: const InputDecoration(
+                obscureText: false, 
+                decoration: InputDecoration(
                   labelText: 'Password',
-                  prefixIcon: Icon(Icons.vpn_key),
-                  border: OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.vpn_key),
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.flash_on, color: Colors.greenAccent),
+                    tooltip: "Generate secure password",
+                    onPressed: _generatePassword,
+                  ),
                 ),
                 validator: (value) => value!.isEmpty ? 'Password is required' : null,
               ),
+              // Hint text for password generation
+              const Padding(
+                padding: EdgeInsets.only(top: 5, left: 10),
+                child: Text(
+                  "Press the lightning ⚡ to generate a secure password",
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ),
+
               const SizedBox(height: 16),
               TextFormField(
                 controller: _notesController,
